@@ -19,7 +19,7 @@ func (ssm *SimpleSafeMap) RW(cbfunc func(map[interface{}]interface{})) {
 	cbfunc(ssm.m)
 }
 
-func NewSafeMap() *SimpleSafeMap {
+func NewSimpleSafeMap() *SimpleSafeMap {
 	return &SimpleSafeMap {
 		m : make(map[interface{}]interface{}),
 		l : new(sync.RWMutex),
