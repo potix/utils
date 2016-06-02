@@ -1,11 +1,11 @@
-package safemap
+package cmap
 
 import (
 	"testing"
 )
 
 func TestLenSetAndGet(t *testing.T) {
-	nm := NewSafeMap()
+	nm := NewCMap()
 	act1 := nm.Len()
 	exp1 := int(0)
 	if act1 != exp1 {
