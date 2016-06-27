@@ -1,244 +1,266 @@
 package cmap
 
-import "sync"
+import (
+	"reflect"
+	"sync"
+)
 
 type KeyValue struct {
-	Key interface{}
+	Key   interface{}
 	Value interface{}
 }
 
 type CMap struct {
-	m map[interface{}]interface{}	
+	m map[interface{}]interface{}
 	l *sync.RWMutex
 }
 
-func (sm *CMap) Len() int {
-	sm.l.RLock()
-	defer sm.l.RUnlock()
-	return len(sm.m)
+func (cm *CMap) Len() (length int) {
+	cm.l.RLock()
+	defer cm.l.RUnlock()
+	return len(cm.m)
 }
 
-func (sm *CMap) IsEmpty() bool {
-	sm.l.RLock()
-	defer sm.l.RUnlock()
-	return len(sm.m) == 0
+func (cm *CMap) IsEmpty() (empty bool) {
+	cm.l.RLock()
+	defer cm.l.RUnlock()
+	return len(cm.m) == 0
 }
 
-func (sm *CMap) Get(k interface{}) (interface{}, bool) {
-	sm.l.RLock()
-	defer sm.l.RUnlock()
-	v, ok := sm.m[k] 
-	return v, ok
+func (cm *CMap) Get(key interface{}) (value interface{}, ok bool) {
+	cm.l.RLock()
+	defer cm.l.RUnlock()
+	value, ok = cm.m[key]
+	return value, ok
 }
 
-func (sm *CMap) Set(k interface{}, v interface{}) {
-	sm.l.Lock()
-	defer sm.l.Unlock()
-	sm.m[k] = v
+func (cm *CMap) Set(key interface{}, value interface{}) {
+	cm.l.Lock()
+	defer cm.l.Unlock()
+	cm.m[key] = value
 }
 
-func (sm *CMap) SetIfAbsent(k interface{}, v interface{}) bool {
-	sm.l.Lock()
-	defer sm.l.Unlock()
-	_, ok := sm.m[k]
+func (cm *CMap) SetIfAbsent(key interface{}, value interface{}) (ok bool) {
+	cm.l.Lock()
+	defer cm.l.Unlock()
+	_, ok = cm.m[key]
 	if !ok {
-		sm.m[k] = v
+		cm.m[key] = value
 	}
 	return !ok
 }
 
-func (sm *CMap) replace(k interface{}, v interface{}) bool {
-	sm.l.Lock()
-	defer sm.l.Unlock()
-	_, ok := sm.m[k];
+func (cm *CMap) Replace(key interface{}, value interface{}) (ok bool) {
+	cm.l.Lock()
+	defer cm.l.Unlock()
+	_, ok = cm.m[key]
 	if ok {
-		sm.m[k] = v
+		cm.m[key] = value
 	}
 	return ok
 }
 
-func (sm *CMap) SetDefault(k interface{}, d interface{}) interface{} {
-	sm.l.Lock()
-	defer sm.l.Unlock()
-	if v, ok := sm.m[k]; ok {
-		 return v
-	} 
-	sm.m[k] = d
-	return d
+func (cm *CMap) GetDefault(key interface{}, defValue interface{}) (value interface{}) {
+	cm.l.RLock()
+	defer cm.l.RUnlock()
+	value, ok := cm.m[key]
+	if !ok {
+		return defValue
+	}
+	return value
 }
 
-func (sm *CMap) Delete(k interface{}) {
-	sm.l.Lock()
-	defer sm.l.Unlock()
-	delete(sm.m, k)
+func (cm *CMap) GetAndSetDefault(key interface{}, defValue interface{}) (value interface{}) {
+	cm.l.Lock()
+	defer cm.l.Unlock()
+	value, ok := cm.m[key]
+	if ok {
+		cm.m[key] = defValue
+		return defValue
+	}
+	return value
 }
 
-
-func (sm *CMap) IsExistsKey(k interface{}) bool {
-	sm.l.RLock()
-	defer sm.l.RUnlock()
-	_, ok := sm.m[k]
+func (cm *CMap) Delete(key interface{}) (ok bool) {
+	cm.l.Lock()
+	defer cm.l.Unlock()
+	_, ok = cm.m[key]
+	if ok {
+		delete(cm.m, key)
+	}
 	return ok
 }
 
-func (sm *CMap) IsExistsValue(v interface{}) bool {
-	sm.l.RLock()
-	defer sm.l.RUnlock()
-	for _, iv := range sm.m {
-		if iv == v {
+func (cm *CMap) IsExistsKey(key interface{}) (ok bool) {
+	cm.l.RLock()
+	defer cm.l.RUnlock()
+	_, ok = cm.m[key]
+	return ok
+}
+
+func (cm *CMap) IsExistsValue(value interface{}) (ok bool) {
+	cm.l.RLock()
+	defer cm.l.RUnlock()
+	for _, iValue := range cm.m {
+		if reflect.DeepEqual(iValue, value) {
 			return true
 		}
 	}
 	return false
 }
 
-func (sm *CMap) Clear() {
-        sm.l.Lock()
-        defer sm.l.Unlock()
-	sm.m = make(map[interface{}]interface{})
+func (cm *CMap) Clear() {
+	cm.l.Lock()
+	defer cm.l.Unlock()
+	cm.m = make(map[interface{}]interface{})
 }
 
-func (sm *CMap) Merge(src *CMap) {
+func (cm *CMap) Merge(src *CMap) {
 	src.rLock()
-	sm.l.Lock()
+	cm.l.Lock()
 	defer func() {
 		src.rUnlock()
-		sm.l.Unlock()
+		cm.l.Unlock()
 	}()
-	for ik, iv := range src.m {
-		if _, ok := sm.m[ik]; !ok {
-			sm.m[ik] = iv
+	for iKey, iValue := range src.m {
+		if _, ok := cm.m[iKey]; !ok {
+			cm.m[iKey] = iValue
 		}
 	}
 }
 
-func (sm *CMap) Update(src *CMap) {
+func (cm *CMap) Update(src *CMap) {
 	src.rLock()
-	sm.l.Lock()
+	cm.l.Lock()
 	defer func() {
 		src.rUnlock()
-		sm.l.Unlock()
+		cm.l.Unlock()
 	}()
-	for ik, iv := range src.m {
-		sm.m[ik] = iv
+	for iKey, iValue := range src.m {
+		cm.m[iKey] = iValue
 	}
 }
 
-func (sm *CMap) Copy() *CMap { 
-	nm := NewCMap()
-	sm.l.RLock()
-	defer sm.l.RUnlock()
-	for ik, iv := range sm.m {
-		nm.unsafeSet(ik, iv)
+func (cm *CMap) Copy() (newCMap *CMap) {
+	newCMap = NewCMap()
+	cm.l.RLock()
+	defer cm.l.RUnlock()
+	for iKey, iValue := range cm.m {
+		newCMap.unsafeSet(iKey, iValue)
 	}
-	return nm
-}
- 
-func (sm *CMap) Keys() []interface{} { 
-	sm.l.RLock()
-	defer sm.l.RUnlock()
-	l := len(sm.m)
-	ks := make([]interface{}, 0, l)
-	for ik, _ := range sm.m {
-		ks = append(ks, ik)
-	}
-	return ks
+	return newCMap
 }
 
-func (sm *CMap) Values() []interface{} { 
-	sm.l.RLock()
-	defer sm.l.RUnlock()
-	l := len(sm.m)
-	vs := make([]interface{}, 0, l)
-	for _, iv := range sm.m {
-		vs = append(vs, iv)
+func (cm *CMap) Keys() (keys []interface{}) {
+	cm.l.RLock()
+	defer cm.l.RUnlock()
+	length := len(cm.m)
+	keys = make([]interface{}, 0, length)
+	for iKey, _ := range cm.m {
+		keys = append(keys, iKey)
 	}
-	return vs
+	return keys
 }
 
-func (sm *CMap) Items() []KeyValue { 
-	sm.l.RLock()
-	defer sm.l.RUnlock()
-	l := len(sm.m)
-	kvs := make([]KeyValue, 0, l)
-	for ik, iv := range sm.m {
-		kv := KeyValue{
-			Key: ik,
-			Value: iv,
-		}
-		kvs = append(kvs, kv)
+func (cm *CMap) Values() (values []interface{}) {
+	cm.l.RLock()
+	defer cm.l.RUnlock()
+	length := len(cm.m)
+	values = make([]interface{}, 0, length)
+	for _, iValue := range cm.m {
+		values = append(values, iValue)
 	}
-	return kvs
+	return values
 }
 
-func (sm *CMap) Pop(k interface{}) (interface{}, bool) { 
-	sm.l.Lock()
-	sm.l.Unlock()
-	v, ok := sm.m[k]
+func (cm *CMap) Items() (items []*KeyValue) {
+	cm.l.RLock()
+	defer cm.l.RUnlock()
+	length := len(cm.m)
+	items = make([]*KeyValue, 0, length)
+	for iKey, iValue := range cm.m {
+		items = append(items, &KeyValue{
+			Key:   iKey,
+			Value: iValue,
+		})
+	}
+	return items
+}
+
+func (cm *CMap) Pop(k interface{}) (value interface{}, ok bool) {
+	cm.l.Lock()
+	cm.l.Unlock()
+	value, ok = cm.m[k]
 	if !ok {
 		return nil, ok
 	}
-	delete(sm.m, k)
-	return v, ok
+	delete(cm.m, k)
+	return value, ok
 }
-	
-func (sm *CMap) PopItem() (interface{}, interface{}, bool) { 
-	sm.l.Lock()
-	defer sm.l.Unlock()
-	var rk interface{} = nil
-	var rv interface{} = nil
-	var ok bool = false
-	for ik, iv := range sm.m {
-		rk = ik 
-		rv = iv
+
+func (cm *CMap) PopItem() (key interface{}, value interface{}, ok bool) {
+	cm.l.Lock()
+	defer cm.l.Unlock()
+	for iKey, iValue := range cm.m {
+		key = iKey
+		value = iValue
 		ok = true
 		break
 	}
 	if ok {
-		delete(sm.m, rk)
+		delete(cm.m, key)
 	}
-	return rk, rv, ok
+	return key, value, ok
 }
 
-func (sm *CMap) ForeachKey(cbfunc func(k interface{})) {
-	sm.l.Lock()
-	defer sm.l.Unlock()
-	for ik, _ := range sm.m {
-		cbfunc(ik)
+func (cm *CMap) ForeachKey(cbfunc func(key interface{}) (loopBreak bool)) {
+	cm.l.Lock()
+	defer cm.l.Unlock()
+	for iKey, _ := range cm.m {
+		loopBreak := cbfunc(iKey)
+		if loopBreak {
+			break
+		}
 	}
 }
- 
-func (sm *CMap) ForeachValue(cbfunc func(v interface{})) {
-	sm.l.Lock()
-	defer sm.l.Unlock()
-	for _, iv := range sm.m {
-		cbfunc(iv)
-	}
-} 
 
-func (sm *CMap) ForeachItem(cbfunc func(k interface{}, v interface{})) {
-	sm.l.Lock()
-	defer sm.l.Unlock()
-	for ik, iv := range sm.m {
-		cbfunc(ik, iv)
+func (cm *CMap) ForeachValue(cbfunc func(value interface{}) (loopBreak bool)) {
+	cm.l.Lock()
+	defer cm.l.Unlock()
+	for _, iValue := range cm.m {
+		loopBreak := cbfunc(iValue)
+		if loopBreak {
+			break
+		}
 	}
-} 
-
-func (sm *CMap) rLock() {
-        sm.l.RLock()
 }
 
-func (sm *CMap) rUnlock() {
-        sm.l.RUnlock()
+func (cm *CMap) ForeachItem(cbfunc func(key interface{}, value interface{}) (loopBreak bool)) {
+	cm.l.Lock()
+	defer cm.l.Unlock()
+	for iKey, iValue := range cm.m {
+		loopBreak := cbfunc(iKey, iValue)
+		if loopBreak {
+			break
+		}
+	}
 }
 
-func (sm *CMap) unsafeSet(k interface{}, v interface{}) {
-        sm.m[k] = v 
+func (cm *CMap) rLock() {
+	cm.l.RLock()
+}
+
+func (cm *CMap) rUnlock() {
+	cm.l.RUnlock()
+}
+
+func (cm *CMap) unsafeSet(key interface{}, value interface{}) {
+	cm.m[key] = value
 }
 
 func NewCMap() *CMap {
-	return &CMap {
-		m : make(map[interface{}]interface{}),
-		l : new(sync.RWMutex),
+	return &CMap{
+		m: make(map[interface{}]interface{}),
+		l: new(sync.RWMutex),
 	}
 }
