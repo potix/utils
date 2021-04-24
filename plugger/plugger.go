@@ -104,11 +104,11 @@ func getPluginSymbole(openedPlugin *plugin.Plugin) (GetPluginInfoFunc, error) {
 func loadPlugin(pluginFilePath string) (error) {
     openedPlugin, err := plugin.Open(pluginFilePath)
     if err != nil {
-	return fmt.Errorf("can not open plugin file (file = %v)", pluginFilePath, err)
+	return fmt.Errorf("can not open plugin file (file = %v): %w", pluginFilePath, err)
     }
     f, err := getPluginSymbole(openedPlugin)
     if err != nil {
-	return fmt.Errorf("not plugin file (file = %v)", pluginFilePath, err)
+	return fmt.Errorf("not plugin file (file = %v): %w", pluginFilePath, err)
     }
     registerPlugin(pluginFilePath, f)
     return nil
@@ -130,7 +130,7 @@ func loadPluginFiles(pluginPath string) (error) {
     pluginPath = fixupPluginPath(pluginPath)
     fileList, err := ioutil.ReadDir(pluginPath)
     if err != nil {
-        return fmt.Errorf("can not read directory (path = %v)", pluginPath, err)
+	    return fmt.Errorf("can not read directory (path = %v): %w", pluginPath, err)
     }
     for _, file := range fileList {
         newPath := filepath.Join(pluginPath, file.Name())
@@ -172,7 +172,7 @@ func GetPluginContext(pluginName string, callerName string, configFilePath strin
         pluginConfigPath := filepath.Join(pluginDir, configFilePath)
         newPlugin, err := info.pluginNewFunc(caller, pluginConfigPath)
         if err != nil {
-            return nil, fmt.Errorf("can not create plugin instance (%v)", pluginName, err)
+		return nil, fmt.Errorf("can not create plugin instance (%v): %w", pluginName, err)
         }
 	pluginCtx := &PluginContext{
 		caller : caller,
