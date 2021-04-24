@@ -1,4 +1,4 @@
-module configurator
+module github.com/potix/utils/configurator
 
 go 1.16
 
