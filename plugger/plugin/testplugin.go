@@ -4,29 +4,29 @@ import (
 	"github.com/potix/utils/plugger"
 )
 
-type test struct {
-	caller     *Caller
+type testPlugin struct {
+	caller     *plugger.Caller
 	configFile string
 }
 
-func (h *httpWatcher) Initialize() (error) {
+func (t *testPlugin) Initialize() (error) {
 	return nil
 }
 
-func (h *httpWatcher) Finalize() {
+func (t *testPlugin) Finalize() {
 }
 
-func (h *httpWatcher) Call(request interface{}) (interface{}, error) {
+func (t *testPlugin) Call(request interface{}) (interface{}, error) {
 	return "hello", nil
 }
 
-func newTest(caller *Caller, configFile string) (Plugin, error) {
-	return &test{
+func newTest(caller *plugger.Caller, configFile string) (plugger.Plugin, error) {
+	return &testPlugin{
 		caller: caller,
-		configfile: confFile,
+		configFile: configFile,
 	}, nil
 }
 
-func GetPluginInfo() (string, PluginNewFunc) {
-	return "test", newTestFunc
+func GetPluginInfo() (string, plugger.PluginNewFunc) {
+	return "testplugin", newTest
 }
