@@ -1,12 +1,13 @@
 package main
 
 import (
+	"log"
         "github.com/potix/utils/plugger"
 )
 
 func main() {
-	err := LoadPlugins("./plugin")
+	err := plugger.LoadPlugins("./plugin")
 	if err != nil {
-		t.Errorf("can not load plugins: %v", err)
+		log.Fatalf("can not load plugins: %v", err)
 	}
 }
