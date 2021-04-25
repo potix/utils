@@ -17,7 +17,7 @@ func (t *testPlugin) Finalize() {
 }
 
 func (t *testPlugin) Call(request interface{}) (interface{}, error) {
-	return "hello", nil
+	return "hello " + request.(string), nil
 }
 
 func newTest(caller *plugger.Caller, configFile string) (plugger.Plugin, error) {
@@ -30,3 +30,4 @@ func newTest(caller *plugger.Caller, configFile string) (plugger.Plugin, error) 
 func GetPluginInfo() (string, plugger.PluginNewFunc) {
 	return "testplugin", newTest
 }
+
