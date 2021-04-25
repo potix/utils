@@ -1,6 +1,7 @@
 package cmap
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -318,3 +319,136 @@ func TestCopy(t *testing.T) {
 		t.Errorf("error: act %v exp %v", act6, exp6)
 	}
 }
+
+func TestKeys(t *testing.T) {
+	nm := NewCMap()
+	nm.Set("hoge", 1000)
+	nm.Set("fuga", 2000)
+	act1 := nm.Len()
+	exp1 := 2
+	if act1 != exp1 {
+		t.Errorf("error: act %v exp %v", act1, exp1)
+	}
+	keys := nm.Keys()
+	act2 := len(keys)
+	exp2 := 2
+	if act2 != exp2 {
+		t.Errorf("error: act %v exp %v", act2, exp2)
+	}
+	for _, k := range keys {
+		v := k.(string)
+		if v != "hoge" && v != "fuga" {
+			t.Errorf("error: act %v", v)
+		}
+	}
+}
+
+func TestValues(t *testing.T) {
+	nm := NewCMap()
+	nm.Set("hoge", 1000)
+	nm.Set("fuga", 2000)
+	act1 := nm.Len()
+	exp1 := 2
+	if act1 != exp1 {
+		t.Errorf("error: act %v exp %v", act1, exp1)
+	}
+	values := nm.Values()
+	act2 := len(values)
+	exp2 := 2
+	if act2 != exp2 {
+		t.Errorf("error: act %v exp %v", act2, exp2)
+	}
+	for _, v := range values {
+		vv := v.(int)
+		if vv != 1000 && vv != 2000 {
+			t.Errorf("error: act %v", vv)
+		}
+	}
+}
+
+func TestItems(t *testing.T) {
+	nm := NewCMap()
+	nm.Set("hoge", 1000)
+	nm.Set("fuga", 2000)
+	act1 := nm.Len()
+	exp1 := 2
+	if act1 != exp1 {
+		t.Errorf("error: act %v exp %v", act1, exp1)
+	}
+	items := nm.Items()
+	act2 := len(items)
+	exp2 := 2
+	if act2 != exp2 {
+		t.Errorf("error: act %v exp %v", act2, exp2)
+	}
+	for _, i := range items {
+		k := i.Key.(string)
+		if k != "hoge" && k != "fuga" {
+			t.Errorf("error: act %v", k)
+		}
+		v := i.Value.(int)
+		if v != 1000 && v != 2000 {
+			t.Errorf("error: act %v", v)
+		}
+	}
+}
+
+func TestPop(t *testing.T) {
+	nm := NewCMap()
+	nm.Set("hoge", 1000)
+	nm.Set("fuga", 2000)
+	act1 := nm.Len()
+	exp1 := 2
+	if act1 != exp1 {
+		t.Errorf("error: act %v exp %v", act1, exp1)
+	}
+	act2, act3 := nm.Pop("fuga")
+	exp2 := 2000
+	exp3 := true
+	if act2 != exp2 {
+		t.Errorf("error: act %v exp %v", act2, exp2)
+	}
+	if act3 != exp3 {
+		t.Errorf("error: act %v exp %v", act3, exp3)
+	}
+	act4 := nm.Len()
+	exp4 := 1
+	if act4 != exp4 {
+		t.Errorf("error: act %v exp %v", act4, exp4)
+	}
+	act5, act6 := nm.Pop("fuga")
+	var exp5 interface{} = nil // value type is interface{} in cmap
+	exp6 := false
+	if act5 != exp5 {
+		t.Errorf("error: act %v exp %v", act5, exp5)
+	}
+	if act6 != exp6 {
+		t.Errorf("error: act %v exp %v", act6, exp6)
+	}
+}
+
+func cbFunc1(key interface{}, value interface{}) (bool) {
+	fmt.Printf("%v, %v\n", key.(string), value.(int))
+	return false
+}
+
+func cbFunc2(key interface{}, value interface{}) (bool) {
+	fmt.Printf("%v, %v\n", key.(string), value.(int))
+	return true
+}
+
+func TestForeach(t *testing.T) {
+	nm := NewCMap()
+	nm.Set("hoge", 1000)
+	nm.Set("fuga", 2000)
+	nm.Set("aaaa", 3000)
+	nm.Set("bbbb", 4000)
+	act1 := nm.Len()
+	exp1 := 4
+	if act1 != exp1 {
+		t.Errorf("error: act %v exp %v", act1, exp1)
+	}
+	nm.ForeachItem(cbFunc1)
+	nm.ForeachItem(cbFunc2)
+}
+
