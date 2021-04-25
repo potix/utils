@@ -1,6 +1,7 @@
 package configurator
 
 import (
+	"os"
 	"testing"
 )
 
@@ -112,5 +113,37 @@ func TestLoadYaml(t *testing.T) {
 	}
 	if conf.C != true {
 		t.Fatalf("C is wrong: %v", conf.C)
+	}
+}
+
+func TestSecret(t *testing.T) {
+	if err := os.Chmod("./example/secret", 0644); err != nil {
+		t.Fatalf("can not chmod: %v", err)
+	}
+	keys, err :=  LoadSecretFile("./example/secret")
+	if err == nil {
+		t.Fatalf("permission check error: %v", err)
+	}
+	if keys != nil {
+		t.Fatalf("permission check error: %v", err)
+	}
+	if err := os.Chmod("./example/secret", 0600); err != nil {
+		t.Fatalf("can not chmod: %v", err)
+	}
+	keys, err =  LoadSecretFile("./example/secret")
+	if err != nil {
+		t.Fatalf("load error: %v", err)
+	}
+	if keys == nil {
+		t.Fatalf("load error: %v", err)
+	}
+	if len(keys) != 2 {
+		t.Fatalf("wrong keys: %+v", keys)
+	}
+	if keys[0] != "ssss" {
+		t.Fatalf("wrong key 0: %v", keys[0])
+	}
+	if keys[1] != "vvvv" {
+		t.Fatalf("wrong key 1: %v", keys[1])
 	}
 }
