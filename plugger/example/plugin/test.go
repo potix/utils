@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"github.com/potix/utils/plugger"
 )
 
@@ -16,8 +17,16 @@ func (t *testPlugin) Initialize() (error) {
 func (t *testPlugin) Finalize() {
 }
 
-func (t *testPlugin) Call(request interface{}) (interface{}, error) {
-	return "hello " + request.(string), nil
+func (t *testPlugin) Call(methodName string, request interface{}) (interface{}, error) {
+	if methodName == "whoAreYou" {
+		log.Printf("%v: I am bob.", request.(int))
+		response, err := t.caller.Callback("whoAreYou", request.(int) + 1)
+		if err != nil {
+			log.Fatalf("callback error: %v", err)
+		}
+		log.Println(response.(string))
+	}
+	return "bob ok!", nil
 }
 
 func newTest(caller *plugger.Caller, configFile string) (plugger.Plugin, error) {

@@ -16,26 +16,25 @@ type CallbackFunc func(request interface{}) (response interface{}, err error)
 // Caller is caller
 type Caller struct {
 	Name string
-	callbacks map[string]CallbackFunc
+	callbackFuncs map[string]CallbackFunc
 }
 
 // SetCallback is set callback
-func (c *Caller)setCallback(methodName string, callback CallbackFunc) {
-	c.callbacks[methodName] = callback
+func (c *Caller)setCallback(methodName string, callbackFunc CallbackFunc) {
+	c.callbackFuncs[methodName] = callbackFunc
 }
 
 // Callback is  callback
 func (c *Caller)Callback(methodName string, request interface{}) (response interface{}, err error) {
-	callback, ok := c.callbacks[methodName]
+	callbackFunc, ok := c.callbackFuncs[methodName]
 	if !ok {
 		return nil, fmt.Errorf("no callback (%v)", methodName)
 	}
-	return callback(request)
+	return callbackFunc(request)
 }
 
 // Plugin is plugin
 type Plugin interface {
-	GetName() (pluginName string)
 	Initialize() (err error)
 	Finalize()
 	Call(methodName string, request interface{}) (response interface{}, err error)
@@ -43,13 +42,13 @@ type Plugin interface {
 
 // PluginContext is plugin context
 type PluginContext struct {
-	caller *Caller
-	plugin Plugin
+	caller     *Caller
+	plugin     Plugin
 }
 
 // SetCallback is set callback
-func (p *PluginContext)SetCallback(methodName string, callback CallbackFunc) {
-	p.caller.setCallback(methodName, callback)
+func (p *PluginContext)SetCallback(methodName string, callbackFunc CallbackFunc) {
+	p.caller.setCallback(methodName, callbackFunc)
 }
 
 // Initialize is Initilize
@@ -80,7 +79,8 @@ type GetPluginInfoFunc func() (string, PluginNewFunc)
 
 type pluginInfo struct {
      pluginFilePath string
-     pluginNewFunc PluginNewFunc
+     pluginName     string
+     pluginNewFunc  PluginNewFunc
 }
 
 var registeredPlugins = make(map[string]*pluginInfo)
@@ -168,6 +168,7 @@ func GetPluginContext(pluginName string, callerName string, configFilePath strin
 	}
 	caller := &Caller{
 		Name : callerName,
+		callbackFuncs: make(map[string]CallbackFunc),
 	}
         pluginDir := filepath.Dir(info.pluginFilePath)
         pluginConfigPath := filepath.Join(pluginDir, configFilePath)
