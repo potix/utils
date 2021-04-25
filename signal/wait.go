@@ -1,15 +1,15 @@
 package signal
 
 import (
-    "log"
     "os"
     "os/signal"
     "syscall"
 )
 
-func SignalWait() {
-        sigChan := make(chan os.Signal, 1)
+func SignalWait(hupFunc func()) {
+        sigChan := make(chan os.Signal, 10)
         signal.Notify(sigChan,
+                syscall.SIGHUP,
                 syscall.SIGINT,
                 syscall.SIGQUIT,
                 syscall.SIGTERM)
@@ -22,8 +22,11 @@ func SignalWait() {
                         fallthrough
                 case syscall.SIGTERM:
                         return
+		case syscall.SIGHUP:
+			if hupFunc != nil {
+				hupFunc()
+			}
                 default:
-                        log.Printf("unexpected signal (sig = %v)", sig)
                 }
         }
 }
