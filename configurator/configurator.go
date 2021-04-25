@@ -5,16 +5,40 @@ import (
 	"os"
 )
 
+type FormatType int
+
+const (
+     FormatTypeNone FormatType = 0 + iota
+     FormatTypeAuto
+     FormatTypeToml
+     FormatTypeYaml
+     FormatTypeJson
+)
+
 // Configurator is configrator
 type Configurator struct {
-	loader *fileLoader
+	formatType FormatType
+	reader     *fileReader
+	writer     *fileWriter
 }
 
-// Load is load
+// Load is read
 func (c *Configurator) Load(config interface{}) error {
-	err := c.loader.load(config)
-	return err
+	formatType, err := c.reader.read(config)
+	if err != nil {
+		return err
+	}
+	c.formatType = formatType
+	return nil
 }
+
+func (c *Configurator) Save(formatType FormatType, config interface{}) (err error) {
+	if formatType >= FormatTypeToml && formatType <= FormatTypeJson {
+		return c.writer.write(formatType, config)
+	}
+	return c.writer.write(c.formatType, config)
+}
+
 
 func validateConfigFile(configFile string) error {
 	f, err := os.Open(configFile)
@@ -32,7 +56,9 @@ func NewConfigurator(configFile string) (*Configurator, error) {
 		return nil, fmt.Errorf("invalid config file (%v): %w", configFile, err)
 	}
 	newConfigurator := &Configurator{
-		loader: newFileLoader(configFile),
+		formatType: FormatTypeAuto,
+		reader:     newFileReader(configFile),
+		writer:     newFileWriter(configFile),
 	}
 	return newConfigurator, nil
 }
