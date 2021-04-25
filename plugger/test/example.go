@@ -1,13 +1,12 @@
-package plugger
+package main
 
 import (
-        "testing"
+        "github.com/potix/utils/plugger"
 )
 
-func TestPlugger(t *testing.T) {
+func main() {
 	err := LoadPlugins("./plugin")
 	if err != nil {
 		t.Errorf("can not load plugins: %v", err)
 	}
 }
-
