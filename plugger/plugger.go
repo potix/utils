@@ -11,7 +11,7 @@ import (
 )
 
 // CallbackFunc is callback func
-type CallbackFunc func(interface{}) (interface{}, error)
+type CallbackFunc func(request interface{}) (response interface{}, err error)
 
 // Caller is caller
 type Caller struct {
@@ -20,24 +20,25 @@ type Caller struct {
 }
 
 // SetCallback is set callback
-func (c *Caller)setCallback(callbackName string, callback CallbackFunc) {
-	c.callbacks[callbackName] = callback
+func (c *Caller)setCallback(methodName string, callback CallbackFunc) {
+	c.callbacks[methodName] = callback
 }
 
 // Callback is  callback
-func (c *Caller)Callback(callbackName string, request interface{}) (interface{}, error) {
-	callback, ok := c.callbacks[callbackName]
+func (c *Caller)Callback(methodName string, request interface{}) (response interface{}, err error) {
+	callback, ok := c.callbacks[methodName]
 	if !ok {
-		return nil, fmt.Errorf("no callback (%v)", callbackName)
+		return nil, fmt.Errorf("no callback (%v)", methodName)
 	}
 	return callback(request)
 }
 
 // Plugin is plugin
 type Plugin interface {
-	Initialize() (error)
+	GetName() (pluginName string)
+	Initialize() (err error)
 	Finalize()
-	Call(request interface{}) (interface{}, error)
+	Call(methodName string, request interface{}) (response interface{}, err error)
 }
 
 // PluginContext is plugin context
@@ -47,8 +48,8 @@ type PluginContext struct {
 }
 
 // SetCallback is set callback
-func (p *PluginContext)SetCallback(callbackName string, callback CallbackFunc) {
-	p.caller.setCallback(callbackName, callback)
+func (p *PluginContext)SetCallback(methodName string, callback CallbackFunc) {
+	p.caller.setCallback(methodName, callback)
 }
 
 // Initialize is Initilize
@@ -62,8 +63,8 @@ func (p *PluginContext)Finalize() {
 }
 
 // Call is Call
-func (p *PluginContext)Call(request interface{}) (interface{}, error) {
-	return p.plugin.Call(request)
+func (p *PluginContext)Call(methodName string, request interface{}) (interface{}, error) {
+	return p.plugin.Call(methodName, request)
 }
 
 const (
