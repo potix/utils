@@ -152,6 +152,12 @@ func YoutubeHelperChannelsParts(parts ...string) YoutubeHelperChannelsOption {
         }
 }
 
+func YoutubeHelperChannelsCategoryId(categoryId string) YoutubeHelperChannelsOption {
+        return func(opts *youtubeHelperChannelsOptions) {
+                opts.categoryId = categoryId
+        }
+}
+
 func YoutubeHelperChannelsForUsername(forUsername string) YoutubeHelperChannelsOption {
         return func(opts *youtubeHelperChannelsOptions) {
                 opts.forUsername = forUsername
@@ -201,6 +207,12 @@ func YoutubeHelperVideosChart(chart string) YoutubeHelperVideosOption {
 func YoutubeHelperVideosIds(ids []string) YoutubeHelperVideosOption {
         return func(opts *youtubeHelperVideosOptions) {
                 opts.ids = ids
+        }
+}
+
+func YoutubeHelperVideosRegionCode(regionCode string) YoutubeHelperVideosOption {
+        return func(opts *youtubeHelperVideosOptions) {
+                opts.regionCode = regionCode
         }
 }
 
