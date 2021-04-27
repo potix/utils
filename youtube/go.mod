@@ -1,4 +1,4 @@
-module github.com/potix/utils/youtube
+module github.com/potix/utils/youtubehelper
 
 go 1.16
 
