@@ -1,4 +1,4 @@
-package helper
+package youtube
 
 import (
 	"context"
@@ -102,9 +102,33 @@ func YoutubeHelperSearchParts(parts ...string) YoutubeHelperSearchOption {
         }
 }
 
+func YoutubeHelperSearchRelatedToVideoId(relatedToVideoId string) YoutubeHelperSearchOption {
+        return func(opts *youtubeHelperSearchOptions) {
+                opts.relatedToVideoId = relatedToVideoId
+        }
+}
+
 func YoutubeHelperSearchChannelId(channelId string) YoutubeHelperSearchOption {
         return func(opts *youtubeHelperSearchOptions) {
                 opts.channelId = channelId
+        }
+}
+
+func YoutubeHelperSearchChannelType(channelType string) YoutubeHelperSearchOption {
+        return func(opts *youtubeHelperSearchOptions) {
+                opts.channelType = channelType
+        }
+}
+
+func YoutubeHelperSearchEventType(eventType string) YoutubeHelperSearchOption {
+        return func(opts *youtubeHelperSearchOptions) {
+                opts.eventType = eventType
+        }
+}
+
+func YoutubeHelperSearchOrder(order string) YoutubeHelperSearchOption {
+        return func(opts *youtubeHelperSearchOptions) {
+                opts.order = order
         }
 }
 
@@ -117,6 +141,30 @@ func YoutubeHelperSearchPublishAfter(publishedAfter time.Time) YoutubeHelperSear
 func YoutubeHelperSearchPublishBefore(publishedBefore time.Time) YoutubeHelperSearchOption {
         return func(opts *youtubeHelperSearchOptions) {
                 opts.publishedBefore = publishedBefore
+        }
+}
+
+func YoutubeHelperSearchQ(q string) YoutubeHelperSearchOption {
+        return func(opts *youtubeHelperSearchOptions) {
+                opts.q = q
+        }
+}
+
+func YoutubeHelperSearchRegionCode(regionCode string) YoutubeHelperSearchOption {
+        return func(opts *youtubeHelperSearchOptions) {
+                opts.regionCode = regionCode
+        }
+}
+
+func YoutubeHelperSearchSafeSearch(safeSearch string) YoutubeHelperSearchOption {
+        return func(opts *youtubeHelperSearchOptions) {
+                opts.safeSearch = safeSearch
+        }
+}
+
+func YoutubeHelperSearchTopicId(topicId string) YoutubeHelperSearchOption {
+        return func(opts *youtubeHelperSearchOptions) {
+                opts.topicId = topicId
         }
 }
 
@@ -321,10 +369,11 @@ func (y *YoutubeHelper) Search(cb SearchCallBack, opts ...YoutubeHelperSearchOpt
 		if err != nil {
 			return fmt.Errorf("can not search %v: %w", baseOpts.searchType, err)
 		}
-		if searchListResponse.Items != nil {
-			for _, item := range searchListResponse.Items {
-				cb(item)
-			}
+		if searchListResponse.Items == nil || len(searchListResponse.Items) == 0 {
+			break
+		}
+		for _, item := range searchListResponse.Items {
+			cb(item)
 		}
 		if searchListResponse.NextPageToken == "" {
 			break
@@ -372,10 +421,11 @@ func (y *YoutubeHelper) Channels(cb ChannelsCallBack, opts ...YoutubeHelperChann
 		if err != nil {
 			return fmt.Errorf("can not get channels: %w", err)
 		}
-		if channelsListResponse.Items != nil {
-			for _, item := range channelsListResponse.Items {
-				cb(item)
-			}
+		if channelsListResponse.Items == nil || len(channelsListResponse.Items) == 0 {
+			break
+		}
+		for _, item := range channelsListResponse.Items {
+			cb(item)
 		}
 		if channelsListResponse.NextPageToken == "" {
 			break
@@ -427,10 +477,11 @@ func (y *YoutubeHelper) Videos(cb VideosCallBack, opts ...YoutubeHelperVideosOpt
 		if err != nil {
 			return fmt.Errorf("can not get videos: %w", err)
 		}
-		if videosListResponse.Items != nil {
-			for _, item := range videosListResponse.Items {
-				cb(item)
-			}
+		if videosListResponse.Items == nil || len(videosListResponse.Items) == 0 {
+			break
+		}
+		for _, item := range videosListResponse.Items {
+			cb(item)
 		}
 		if videosListResponse.NextPageToken == "" {
 			break
