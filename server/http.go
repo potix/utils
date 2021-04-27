@@ -6,6 +6,7 @@ import (
         "context"
         "time"
         "net/http"
+	"crypto/tls"
         "github.com/gin-gonic/gin"
 )
 
@@ -149,6 +150,11 @@ func NewHttpServer(addrPort string, handler HttpHandler, opts ...HttpServerOptio
 		WriteTimeout: baseOpts.writeTimeout,
 		IdleTimeout : baseOpts.idleTimeout,
         }
+	if baseOpts.tlsCertPath != "" && baseOpts.tlsKeyPath != "" {
+		s.TLSConfig = &tls.Config{
+			MinVersion: tls.VersionTLS12,
+		}
+	}
         return &HttpServer {
 		addrPort: addrPort,
 		opts: baseOpts,
