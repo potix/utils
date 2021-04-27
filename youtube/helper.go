@@ -463,7 +463,7 @@ func (y *YoutubeHelper) Videos(cb VideosCallBack, opts ...YoutubeHelperVideosOpt
 		if baseOpts.ids != nil {
 			videosListCall.Id(baseOpts.ids...)
 		}
-		if baseOpts.ids != nil {
+		if baseOpts.ids == nil {
 			videosListCall.MaxResults(50)
 			videosListCall.PageToken(pageToken)
 		}
