@@ -494,6 +494,9 @@ func (y *YoutubeHelper) Videos(cb VideosCallBack, opts ...YoutubeHelperVideosOpt
 func NewYoutubeHelper(apiKey string, opts ...YoutubeHelperOption) *YoutubeHelper {
 	baseOpts := defaultYoutubeHelperOptions()
 	for _, opt := range opts {
+		if opt == nil {
+			continue
+		}
 		opt(baseOpts)
 	}
 	return &YoutubeHelper{

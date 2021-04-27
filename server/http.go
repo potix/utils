@@ -133,6 +133,9 @@ func (s *HttpServer) Stop() {
 func NewHttpServer(addrPort string, handler HttpHandler, opts ...HttpServerOption) (*HttpServer, error) {
 	baseOpts := defaultOptions()
         for _, opt := range opts {
+		if opt == nil {
+			continue
+		}
                 opt(baseOpts)
         }
 	gin.SetMode(baseOpts.mode)
