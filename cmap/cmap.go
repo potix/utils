@@ -33,6 +33,16 @@ func (cm *CMap) Set(key interface{}, value interface{}) {
 	cm.m[key] = value
 }
 
+func (cm *CMap) Update(key interface{}, updateCb func(interface{}) (interface{})) (ok bool) {
+	cm.l.Lock()
+	defer cm.l.Unlock()
+	value, ok := cm.m[key]
+	if ok {
+		cm.m[key] = updateCb(value)
+	}
+	return ok
+}
+
 func (cm *CMap) SetIfAbsent(key interface{}, value interface{}) (ok bool) {
 	cm.l.Lock()
 	defer cm.l.Unlock()

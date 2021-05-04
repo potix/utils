@@ -43,6 +43,38 @@ func TestSetGet(t *testing.T) {
 	}
 }
 
+func updatecb(v interface{}) (interface{}) {
+	return v.(int) + 1000
+}
+
+func TestSetUpdateGet(t *testing.T) {
+	nm := NewCMap()
+	nm.Set("hoge", 1000)
+	act1, act2 := nm.Get("hoge")
+	exp1 := 1000
+	exp2 := true
+	if act1 != exp1 {
+		t.Errorf("error: act %v exp %v", act1, exp1)
+	}
+	if act2 != exp2 {
+		t.Errorf("error: act %v exp %v", act2, exp2)
+	}
+	act3 := nm.Update("hoge", updatecb)
+	exp3 := true
+	if act3 != exp3 {
+		t.Errorf("error: act %v exp %v", act3, exp3)
+	}
+	act4, act5 := nm.Get("hoge")
+	exp4 := 2000
+	exp5 := true
+	if act4 != exp4 {
+		t.Errorf("error: act %v exp %v", act4, exp4)
+	}
+	if act5 != exp5 {
+		t.Errorf("error: act %v exp %v", act5, exp5)
+	}
+}
+
 func TestSetIfAbsend(t *testing.T) {
 	nm := NewCMap()
 	nm.Set("hoge", 1000)
