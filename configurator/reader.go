@@ -51,17 +51,20 @@ func (f *fileReader)read(config interface{}) (FormatType, error) {
 		log.Printf("read config file as toml (%v)", f.configFile)
 		return FormatTypeToml, nil
 	}
+	log.Printf("can not decode config file as toml: %v", err)
 	err = f.readJSON(config)
 	if err == nil {
 		log.Printf("read config file as json (%v)", f.configFile)
 		return FormatTypeJson, nil
 	}
+	log.Printf("can not decode config file as json: %v", err)
 	err = f.readYaml(config)
 	if err == nil {
 		log.Printf("read config file as yaml (%v)", f.configFile)
 		return FormatTypeYaml, nil
 	}
-	return FormatTypeNone, fmt.Errorf("can not decode config file (%v): %w", f.configFile, err)
+	log.Printf("can not decode config file as yaml: %v", err)
+	return FormatTypeNone, fmt.Errorf("can not decode config file (%v)", f.configFile)
 }
 
 func newFileReader(configFile string) (*fileReader) {
