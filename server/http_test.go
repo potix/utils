@@ -1,25 +1,27 @@
 package server
 
 import (
+	"fmt"
 	"time"
 	"github.com/gin-gonic/gin"
         "testing"
 )
 
-type handler struct {
+type httpHandler struct {
 }
 
-func (h *handler) Start() (error) {
+func (h *httpHandler) Start() (error) {
 	return nil
 }
 
-func (h *handler) Stop() {
+func (h *httpHandler) Stop() {
 }
 
-func (h *handler) SetRouting(route *gin.Engine) {
+func (h *httpHandler) SetRouting(route *gin.Engine) {
 }
 
-func TestLen(t *testing.T) {
+func TestHttpRun(t *testing.T) {
+	fmt.Printf("--- http test ---\n")
 	to := 30 * time.Second
 	opt1 := HttpServerVerbose(true)
 	opt2 := HttpServerMode("debug")
@@ -31,7 +33,7 @@ func TestLen(t *testing.T) {
 	opt8 := HttpServerShutdownTimeout(to)
 	server, err :=  NewHttpServer(
 		"127.0.0.1:12345",
-		&handler{},
+		&httpHandler{},
 		opt1,
 		opt2,
 		opt3,
@@ -49,5 +51,4 @@ func TestLen(t *testing.T) {
 	}
 	time.Sleep(2 * time.Second)
 	server.Stop()
-
 }

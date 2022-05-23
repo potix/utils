@@ -8,15 +8,15 @@ import (
 	"sync"
 )
 
-type httpServerOptions struct {
-        verbose        bool
-        tlsCertPath    string
-        tlsKeyPath     string
-	skipskipVerify bool
+type tcpServerOptions struct {
+        verbose     bool
+        tlsCertPath string
+        tlsKeyPath  string
+	skipVerify  bool
 }
 
-func defaultOptions() *tcpServerOptions {
-        return &httpServerOptions{
+func tcpServerDefaultOptions() *tcpServerOptions {
+        return &tcpServerOptions{
                 verbose:     false,
                 tlsCertPath: "",
                 tlsKeyPath:  "",
@@ -54,7 +54,7 @@ type TcpHandler interface {
 type TcpServer struct {
 	addrPort  string
 	tlsConfig *tls.Config
-	opts      *httpServerOptions
+	opts      *tcpServerOptions
 	handler   TcpHandler
 	listen    net.Listener
 	wg        *sync.WaitGroup
@@ -75,7 +75,7 @@ func (s *TcpServer) acceptLoop() {
 		} else {
 			s.wg.Add(1)
 			go func() {
-				s.handler.OnAccept(conn)
+				s.handler.OnAccept(&conn)
 				s.wg.Done()
 			}()
 		}
@@ -87,37 +87,39 @@ func (s *TcpServer) Start() (error){
 		return fmt.Errorf("can not start handelr: %w", err)
 	}
 	if s.tlsConfig != nil {
-		s.listen, err := tls.Listen("tcp", s.addrPort, s.tlsConfig)
+		l, err := tls.Listen("tcp", s.addrPort, s.tlsConfig)
 		if err != nil {
 			return fmt.Errorf("can not listen: %w", err)
 		}
+		s.listen = l
 	} else {
-		s.listen, err := net.Listen("tcp", s.addrPort)
+		l, err := net.Listen("tcp", s.addrPort)
 		if err != nil {
 			return fmt.Errorf("can not listen: %w", err)
 		}
+		s.listen = l
 	}
 	s.wg.Add(1)
         go s.acceptLoop()
 	return nil
 }
 
-func (s *HttpServer) Stop() {
-	Close(s.stopped)
+func (s *TcpServer) Stop() {
+	close(s.stopped)
 	s.listen.Close()
 	s.wg.Wait()
 	s.handler.Stop()
 }
 
-func NewTCPServer(addrPort string, handler TcpHandler, opts ...TcpServerOption) (*TcpServer, error) {
-	baseOpts := defaultOptions()
+func NewTcpServer(addrPort string, handler TcpHandler, opts ...TcpServerOption) (*TcpServer, error) {
+	baseOpts := tcpServerDefaultOptions()
         for _, opt := range opts {
 		if opt == nil {
 			continue
 		}
                 opt(baseOpts)
         }
-	var tlsConfig tls.Config = nil
+	var tlsConfig *tls.Config = nil
 	if baseOpts.tlsCertPath != "" && baseOpts.tlsKeyPath != "" {
 		cert, err := tls.LoadX509KeyPair(baseOpts.tlsCertPath, baseOpts.tlsKeyPath)
 		if err != nil {
@@ -126,7 +128,7 @@ func NewTCPServer(addrPort string, handler TcpHandler, opts ...TcpServerOption) 
 		tlsConfig = &tls.Config{
 			MinVersion: tls.VersionTLS12,
 			Certificates: []tls.Certificate{cert},
-			InsecureSkipVerify: baseOpts.skipVerify
+			InsecureSkipVerify: baseOpts.skipVerify,
 		}
 	}
         return &TcpServer {

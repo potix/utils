@@ -22,7 +22,7 @@ type httpServerOptions struct {
 	shutdownTimeout   time.Duration
 }
 
-func defaultOptions() *httpServerOptions {
+func httpServerDefaultOptions() *httpServerOptions {
         return &httpServerOptions{
                 mode:              gin.ReleaseMode,
                 verbose:           false,
@@ -132,7 +132,7 @@ func (s *HttpServer) Stop() {
 }
 
 func NewHttpServer(addrPort string, handler HttpHandler, opts ...HttpServerOption) (*HttpServer, error) {
-	baseOpts := defaultOptions()
+	baseOpts := httpServerDefaultOptions()
         for _, opt := range opts {
 		if opt == nil {
 			continue
