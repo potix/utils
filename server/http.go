@@ -15,6 +15,7 @@ type httpServerOptions struct {
         mode              string
         tlsCertPath       string
         tlsKeyPath        string
+	skipVerify        bool
 	readHeaderTimeout time.Duration
 	readTimeout       time.Duration
 	writeTimeout      time.Duration
@@ -28,6 +29,7 @@ func httpServerDefaultOptions() *httpServerOptions {
                 verbose:           false,
                 tlsCertPath:       "",
                 tlsKeyPath:        "",
+		skipVerify:        false,
 		readHeaderTimeout: 5 * time.Second,
 		readTimeout:       10 * time.Second,
 		writeTimeout:      10 * time.Second,
@@ -54,6 +56,12 @@ func HttpServerTls(tlsCertPath string, tlsKeyPath string) HttpServerOption {
         return func(opts *httpServerOptions) {
                 opts.tlsCertPath = tlsCertPath
                 opts.tlsKeyPath = tlsKeyPath
+        }
+}
+
+func HttpServerSkipVerify(skipVerify bool) HttpServerOption {
+        return func(opts *httpServerOptions) {
+                opts.skipVerify = skipVerify
         }
 }
 
@@ -153,6 +161,7 @@ func NewHttpServer(addrPort string, handler HttpHandler, opts ...HttpServerOptio
 	if baseOpts.tlsCertPath != "" && baseOpts.tlsKeyPath != "" {
 		s.TLSConfig = &tls.Config{
 			MinVersion: tls.VersionTLS12,
+			InsecureSkipVerify: baseOpts.skipVerify,
 		}
 	}
         return &HttpServer {

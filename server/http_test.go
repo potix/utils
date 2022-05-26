@@ -26,11 +26,12 @@ func TestHttpRun(t *testing.T) {
 	opt1 := HttpServerVerbose(true)
 	opt2 := HttpServerMode("debug")
 	opt3 := HttpServerTls("", "")
-	opt4 := HttpServerReadHeaderTimeout(to)
-	opt5 := HttpServerReadTimeout(to)
-	opt6 := HttpServerWriteTimeout(to)
-	opt7 := HttpServerIdleTimeout(to)
-	opt8 := HttpServerShutdownTimeout(to)
+	opt4 := HttpServerSkipVerify(false)
+	opt5 := HttpServerReadHeaderTimeout(to)
+	opt6 := HttpServerReadTimeout(to)
+	opt7 := HttpServerWriteTimeout(to)
+	opt8 := HttpServerIdleTimeout(to)
+	opt9 := HttpServerShutdownTimeout(to)
 	server, err :=  NewHttpServer(
 		"127.0.0.1:12345",
 		&httpHandler{},
@@ -42,6 +43,7 @@ func TestHttpRun(t *testing.T) {
 		opt6,
 		opt7,
 		opt8,
+		opt9,
 	)
 	if err != nil {
 		t.Fatalf("can not create server")
