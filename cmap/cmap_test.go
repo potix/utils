@@ -6,7 +6,7 @@ import (
 )
 
 func TestLen(t *testing.T) {
-	nm := NewCMap()
+	nm := NewCMap[string, int]()
 	act1 := nm.Len()
 	exp1 := 0
 	nm.Set("hoge", 1000)
@@ -21,7 +21,7 @@ func TestLen(t *testing.T) {
 }
 
 func TestSetGet(t *testing.T) {
-	nm := NewCMap()
+	nm := NewCMap[string, int]()
 	nm.Set("hoge", 1000)
 	act1, act2 := nm.Get("hoge")
 	exp1 := 1000
@@ -33,7 +33,7 @@ func TestSetGet(t *testing.T) {
 		t.Errorf("error: act %v exp %v", act2, exp2)
 	}
 	act3, act4 := nm.Get("abc")
-	var exp3 interface{} = nil // value type is interface{} in cmap
+	var exp3 int
 	exp4 := false
 	if act3 != exp3 {
 		t.Errorf("error: act %v exp %v", act3, exp3)
@@ -43,12 +43,12 @@ func TestSetGet(t *testing.T) {
 	}
 }
 
-func updatecb(v interface{}) (interface{}) {
-	return v.(int) + 1000
+func updatecb(v int) int {
+	return v + 1000
 }
 
-func TestSetUpdateGet(t *testing.T) {
-	nm := NewCMap()
+func TestSetUpdate(t *testing.T) {
+	nm := NewCMap[string, int]()
 	nm.Set("hoge", 1000)
 	act1, act2 := nm.Get("hoge")
 	exp1 := 1000
@@ -76,7 +76,7 @@ func TestSetUpdateGet(t *testing.T) {
 }
 
 func TestSetIfAbsend(t *testing.T) {
-	nm := NewCMap()
+	nm := NewCMap[string, int]()
 	nm.Set("hoge", 1000)
 	act0 := nm.SetIfAbsent("hoge", 100)
 	act1, act2 := nm.Get("hoge")
@@ -109,7 +109,7 @@ func TestSetIfAbsend(t *testing.T) {
 }
 
 func TestSetIfExist(t *testing.T) {
-	nm := NewCMap()
+	nm := NewCMap[string, int]()
 	nm.Set("hoge", 1000)
 	act0 := nm.SetIfExist("hoge", 100)
 	act1, act2 := nm.Get("hoge")
@@ -128,7 +128,7 @@ func TestSetIfExist(t *testing.T) {
 	act3 := nm.SetIfExist("hoge2", 100)
 	act4, act5 := nm.Get("hoge2")
 	exp3 := false
-	var exp4 interface{} = nil // value type is interface{} in cmap
+	var exp4 int
 	exp5 := false
 	if act3 != exp3 {
 		t.Errorf("error: act %v exp %v", act3, exp3)
@@ -142,7 +142,7 @@ func TestSetIfExist(t *testing.T) {
 }
 
 func TestGetWithDefault(t *testing.T) {
-	nm := NewCMap()
+	nm := NewCMap[string, int]()
 	nm.Set("hoge", 1000)
 	act1 := nm.GetWithDefault("hoge", 222)
 	exp1 := 1000
@@ -166,7 +166,7 @@ func TestGetWithDefault(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	nm := NewCMap()
+	nm := NewCMap[string, int]()
 	nm.Set("hoge", 1000)
 	nm.Set("hoge2", 100)
 	act1 := nm.Len()
@@ -197,7 +197,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestClear(t *testing.T) {
-	nm := NewCMap()
+	nm := NewCMap[string, int]()
 	nm.Set("hoge", 1000)
 	nm.Set("hoge2", 100)
 	act1 := nm.Len()
@@ -214,7 +214,7 @@ func TestClear(t *testing.T) {
 }
 
 func TestOverWriteMerge(t *testing.T) {
-	nm1 := NewCMap()
+	nm1 := NewCMap[string, int]()
 	nm1.Set("hoge", 1000)
 	nm1.Set("aaaa", 222)
 	act1 := nm1.Len()
@@ -222,7 +222,7 @@ func TestOverWriteMerge(t *testing.T) {
 	if act1 != exp1 {
 		t.Errorf("error: act %v exp %v", act1, exp1)
 	}
-	nm2 := NewCMap()
+	nm2 := NewCMap[string, int]()
 	nm2.Set("fuga", 2000)
 	nm2.Set("aaaa", 111)
 	act2 := nm2.Len()
@@ -266,7 +266,7 @@ func TestOverWriteMerge(t *testing.T) {
 }
 
 func TestKeepMerge(t *testing.T) {
-	nm1 := NewCMap()
+	nm1 := NewCMap[string, int]()
 	nm1.Set("hoge", 1000)
 	nm1.Set("aaaa", 222)
 	act1 := nm1.Len()
@@ -274,7 +274,7 @@ func TestKeepMerge(t *testing.T) {
 	if act1 != exp1 {
 		t.Errorf("error: act %v exp %v", act1, exp1)
 	}
-	nm2 := NewCMap()
+	nm2 := NewCMap[string, int]()
 	nm2.Set("fuga", 2000)
 	nm2.Set("aaaa", 111)
 	act2 := nm2.Len()
@@ -318,7 +318,7 @@ func TestKeepMerge(t *testing.T) {
 }
 
 func TestCopy(t *testing.T) {
-	nm1 := NewCMap()
+	nm1 := NewCMap[string, int]()
 	nm1.Set("hoge", 1000)
 	nm1.Set("fuga", 2000)
 	act1 := nm1.Len()
@@ -353,7 +353,7 @@ func TestCopy(t *testing.T) {
 }
 
 func TestKeys(t *testing.T) {
-	nm := NewCMap()
+	nm := NewCMap[string, int]()
 	nm.Set("hoge", 1000)
 	nm.Set("fuga", 2000)
 	act1 := nm.Len()
@@ -368,15 +368,14 @@ func TestKeys(t *testing.T) {
 		t.Errorf("error: act %v exp %v", act2, exp2)
 	}
 	for _, k := range keys {
-		v := k.(string)
-		if v != "hoge" && v != "fuga" {
-			t.Errorf("error: act %v", v)
+		if k != "hoge" && k != "fuga" {
+			t.Errorf("error: act %v", k)
 		}
 	}
 }
 
 func TestValues(t *testing.T) {
-	nm := NewCMap()
+	nm := NewCMap[string, int]()
 	nm.Set("hoge", 1000)
 	nm.Set("fuga", 2000)
 	act1 := nm.Len()
@@ -391,15 +390,14 @@ func TestValues(t *testing.T) {
 		t.Errorf("error: act %v exp %v", act2, exp2)
 	}
 	for _, v := range values {
-		vv := v.(int)
-		if vv != 1000 && vv != 2000 {
-			t.Errorf("error: act %v", vv)
+		if v != 1000 && v != 2000 {
+			t.Errorf("error: act %v", v)
 		}
 	}
 }
 
 func TestItems(t *testing.T) {
-	nm := NewCMap()
+	nm := NewCMap[string, int]()
 	nm.Set("hoge", 1000)
 	nm.Set("fuga", 2000)
 	act1 := nm.Len()
@@ -414,19 +412,17 @@ func TestItems(t *testing.T) {
 		t.Errorf("error: act %v exp %v", act2, exp2)
 	}
 	for _, i := range items {
-		k := i.Key.(string)
-		if k != "hoge" && k != "fuga" {
-			t.Errorf("error: act %v", k)
+		if i.Key != "hoge" && i.Key != "fuga" {
+			t.Errorf("error: act %v", i.Key)
 		}
-		v := i.Value.(int)
-		if v != 1000 && v != 2000 {
-			t.Errorf("error: act %v", v)
+		if i.Value != 1000 && i.Value != 2000 {
+			t.Errorf("error: act %v", i.Value)
 		}
 	}
 }
 
 func TestPop(t *testing.T) {
-	nm := NewCMap()
+	nm := NewCMap[string, int]()
 	nm.Set("hoge", 1000)
 	nm.Set("fuga", 2000)
 	act1 := nm.Len()
@@ -449,7 +445,7 @@ func TestPop(t *testing.T) {
 		t.Errorf("error: act %v exp %v", act4, exp4)
 	}
 	act5, act6 := nm.Pop("fuga")
-	var exp5 interface{} = nil // value type is interface{} in cmap
+	var exp5 int
 	exp6 := false
 	if act5 != exp5 {
 		t.Errorf("error: act %v exp %v", act5, exp5)
@@ -459,18 +455,12 @@ func TestPop(t *testing.T) {
 	}
 }
 
-func cbFunc1(key interface{}, value interface{}) (bool) {
-	fmt.Printf("%v, %v\n", key.(string), value.(int))
-	return false
-}
-
-func cbFunc2(key interface{}, value interface{}) (bool) {
-	fmt.Printf("%v, %v\n", key.(string), value.(int))
-	return true
+func cbFunc1(key string, value int) {
+	fmt.Printf("%v, %v\n", key, value)
 }
 
 func TestForeach(t *testing.T) {
-	nm := NewCMap()
+	nm := NewCMap[string, int]()
 	nm.Set("hoge", 1000)
 	nm.Set("fuga", 2000)
 	nm.Set("aaaa", 3000)
@@ -480,7 +470,35 @@ func TestForeach(t *testing.T) {
 	if act1 != exp1 {
 		t.Errorf("error: act %v exp %v", act1, exp1)
 	}
-	nm.ForeachItem(cbFunc1)
-	nm.ForeachItem(cbFunc2)
+	nm.Foreach(cbFunc1)
 }
 
+func cbFunc3(key string, value int) (int) {
+	fmt.Printf("%v, %v\n", key, value)
+	return value
+}
+
+func cbFunc4(key string, value int) (int) {
+	return value + 500
+}
+
+func TestForeachUpdate(t *testing.T) {
+	nm := NewCMap[string, int]()
+	nm.Set("hoge", 1000)
+	nm.Set("fuga", 2000)
+	nm.Set("aaaa", 3000)
+	nm.Set("bbbb", 4000)
+	nm.Set("cccc", 4000)
+	act1 := nm.Len()
+	exp1 := 5
+	if act1 != exp1 {
+		t.Errorf("error: act %v exp %v", act1, exp1)
+	}
+	fmt.Printf("-----\n")
+	nm.ForeachUpdate(cbFunc3)
+	fmt.Printf("-----\n")
+	nm.ForeachUpdate(cbFunc4)
+	fmt.Printf("-----\n")
+	nm.ForeachUpdate(cbFunc3)
+	fmt.Printf("-----\n")
+}
