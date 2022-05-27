@@ -19,7 +19,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("can not get test plugin context: %v", err)
 	}
-	pluginCtx.SetCallback("whoAreYou", whoAreyou)
+	pluginCtx.SetCallerCallback("whoAreYou", whoAreyou)
 	err = pluginCtx.Initialize()
 	if err != nil {
 		log.Fatalf("failed to plugin initialize: %v", err)

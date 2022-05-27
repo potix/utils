@@ -47,7 +47,7 @@ type PluginContext struct {
 }
 
 // SetCallback is set callback
-func (p *PluginContext)SetCallback(methodName string, callbackFunc CallbackFunc) {
+func (p *PluginContext)SetCallerCallback(methodName string, callbackFunc CallbackFunc) {
 	p.caller.setCallback(methodName, callbackFunc)
 }
 
