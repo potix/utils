@@ -17,7 +17,7 @@ func (h *tcpHandler) Start() (error) {
 func (h *tcpHandler) Stop() {
 }
 
-func (h *tcpHandler) OnAccept(conn *net.Conn) {
+func (h *tcpHandler) OnAccept(conn net.Conn) {
 }
 
 func TestTcpRun(t *testing.T) {

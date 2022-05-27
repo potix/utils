@@ -48,7 +48,7 @@ func TcpServerSkipVerify(skipVerify bool) TcpServerOption {
 type TcpHandler interface {
         Start() (error)
         Stop()
-        OnAccept(*net.Conn)
+        OnAccept(net.Conn)
 }
 
 type TcpServer struct {
@@ -75,7 +75,7 @@ func (s *TcpServer) acceptLoop() {
 		} else {
 			s.wg.Add(1)
 			go func() {
-				s.handler.OnAccept(&conn)
+				s.handler.OnAccept(conn)
 				s.wg.Done()
 			}()
 		}
