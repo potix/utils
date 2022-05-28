@@ -88,6 +88,7 @@ log.Printf("end accept loop")
 }
 
 func (s *TcpServer) Start() (error){
+log.Printf("tcp server start")
 	if err := s.handler.Start(); err != nil {
 		return fmt.Errorf("can not start handelr: %w", err)
 	}
@@ -110,6 +111,7 @@ func (s *TcpServer) Start() (error){
 }
 
 func (s *TcpServer) Stop() {
+log.Printf("tcp servert stop")
 	close(s.stopped)
 	s.listen.Close()
 log.Printf("try wg stop")
