@@ -74,15 +74,15 @@ log.Printf("accept stop")
 				return
 			default:
 				log.Printf("can not accept: %v ", err)
+				continue
 			}
-		} else {
-log.Printf("accepted")
-			s.wg.Add(1)
-			go func() {
-				s.handler.OnAccept(conn)
-				s.wg.Done()
-			}()
 		}
+log.Printf("accepted")
+		s.wg.Add(1)
+		go func() {
+			s.handler.OnAccept(conn)
+			s.wg.Done()
+		}()
 	}
 log.Printf("end accept loop")
 }
@@ -112,7 +112,9 @@ func (s *TcpServer) Start() (error){
 func (s *TcpServer) Stop() {
 	close(s.stopped)
 	s.listen.Close()
+log.Printf("try wg stop")
 	s.wg.Wait()
+log.Printf("done wg stop")
 	s.handler.Stop()
 }
 
