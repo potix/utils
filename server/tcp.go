@@ -80,7 +80,9 @@ log.Printf("accept stop")
 log.Printf("accepted")
 		s.wg.Add(1)
 		go func() {
+log.Printf("start on accept")
 			s.handler.OnAccept(conn)
+log.Printf("end on accept")
 			s.wg.Done()
 		}()
 	}
