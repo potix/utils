@@ -62,35 +62,33 @@ type TcpServer struct {
 }
 
 func (s *TcpServer) acceptLoop() {
-log.Printf("start accept loop")
 	defer s.wg.Done()
 	for {
-log.Printf("try accept")
 		conn, err := s.listen.Accept()
 		if err != nil {
 			select {
 			case <- s.stopped:
-log.Printf("accept stop")
 				return
 			default:
 				log.Printf("can not accept: %v ", err)
 				continue
 			}
 		}
-log.Printf("accepted")
 		s.wg.Add(1)
 		go func() {
-log.Printf("start on accept")
+			if s.opts.verbose {
+				log.Printf("start OnAccept of handler")
+			}
 			s.handler.OnAccept(conn)
-log.Printf("end on accept")
+			if s.opts.verbose {
+				log.Printf("end OnAccept of handler")
+			}
 			s.wg.Done()
 		}()
 	}
-log.Printf("end accept loop")
 }
 
 func (s *TcpServer) Start() (error){
-log.Printf("tcp server start")
 	if err := s.handler.Start(); err != nil {
 		return fmt.Errorf("can not start handelr: %w", err)
 	}
@@ -113,12 +111,9 @@ log.Printf("tcp server start")
 }
 
 func (s *TcpServer) Stop() {
-log.Printf("tcp servert stop")
 	close(s.stopped)
 	s.listen.Close()
-log.Printf("try wg stop")
 	s.wg.Wait()
-log.Printf("done wg stop")
 	s.handler.Stop()
 }
 
