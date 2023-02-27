@@ -160,7 +160,7 @@ func NewHttpServer(addrPort string, handler HttpHandler, opts ...HttpServerOptio
         }
 	if baseOpts.tlsCertPath != "" && baseOpts.tlsKeyPath != "" {
 		s.TLSConfig = &tls.Config{
-			MinVersion: tls.VersionTLS12,
+			MinVersion: tls.VersionTLS13,
 			InsecureSkipVerify: baseOpts.skipVerify,
 		}
 	}
